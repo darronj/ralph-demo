@@ -162,6 +162,25 @@ Next steps:
    ./kickoff.sh
 ```
 
+## Before Exiting
+
+**IMPORTANT:** Ask the user if they want to remove the init-project.sh script.
+
+Use the AskUserQuestion tool with:
+
+- Question: "The init-project.sh script is designed for one-time use. Would you like to remove it now?"
+- Options:
+  - "Yes - Remove the script (recommended)"
+  - "No - Keep it for now"
+
+If the user chooses "Yes", tell them to run:
+
+```bash
+rm init-project.sh
+```
+
+If the user chooses "No", explain they can remove it later with the same command.
+
 ## Critical Requirements
 
 - **DO NOT execute code** - This is planning only, not implementation
