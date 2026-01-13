@@ -4,60 +4,61 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-This is a **template repository** for starting new projects with Claude Code. It provides:
+Template repository for project initialization and automated feature development with Claude Code. Provides two-phase workflow: planning (generate PRDs) and execution (implement requirements).
 
-1. **Guided discovery workflow** - Run `./init-project.sh` to have a structured conversation about your project
-2. **Automated planning** - Claude generates a plan document and feature PRDs with dependency tracking
-3. **Feature automation** - The Ralph Wiggum Loop executes features iteratively against PRD requirements
-4. **Dependency validation** - Scripts ensure prerequisites are complete before starting work
+## System Architecture
 
-## For Template Users
+### Two-Phase Workflow
 
-When someone clones this template:
+**Phase 1: Planning** (`init-project.sh` + `plan-prompt.md`)
+- Conduct discovery interview with user
+- Generate hierarchical plan with feature dependencies
+- Create feature PRDs with YAML frontmatter metadata
+- **DO NOT execute code** - planning only
 
-1. They run `./init-project.sh` (which self-deletes after use)
-2. You (Claude) conduct a discovery interview to understand:
-   - What they're building and why
-   - Who will use it
-   - Core functionality (3-5 key features)
-   - Technical preferences (language, framework)
-   - Success criteria
-3. You generate:
-   - Plan document: `docs/plans/YYYY-MM-DD-<project>-initial.md`
-   - Feature PRDs: `docs/features/*/prd.md` with YAML frontmatter
-   - Standards document: `docs/standards.md`
-   - Example conversation: `docs/examples/discovery-conversation.md`
-4. They review, commit, and start building with `./kickoff.sh`
+**Phase 2: Execution** (`kickoff.sh` + `ralph-loop-prompt.md`)
+- Implement ONE requirement per iteration
+- Update PRD by checking off completed requirements
+- Append summary to root-level `progress.txt`
+- **DO execute code** - production-ready implementation
 
-## Directory Structure
+### Critical Distinction
 
-```
-docs/
-  plans/          # Planning documents
-  features/       # Feature PRDs (generated during init)
-  architecture/   # Ralph Wiggum Loop docs, PRD writing guidance
-  examples/       # Discovery conversation example
-  standards.md    # Standard acceptance criteria
-```
+- `plan-prompt.md`: Planning mode - creates/edits PRDs, no code execution
+- `ralph-loop-prompt.md`: Execution mode - implements requirements, updates PRDs
 
-## PRD Format
+## Prompt Files (Editable System Prompts)
 
-Each feature PRD has YAML frontmatter for dependency tracking:
+Both prompts are version-controlled and tunable:
+
+**`plan-prompt.md`** - Used by `init-project.sh`
+- Discovery interview questions (one at a time)
+- Plan document structure with "Future Conversations" section
+- PRD generation with dependency metadata
+- Sets `status: ready` (no deps) or `status: blocked` (has deps)
+
+**`ralph-loop-prompt.md`** - Used by `kickoff.sh`
+- Choose ONE incomplete requirement (any order)
+- Fully implement with code, tests, docs
+- Update PRD: `- [ ]` → `- [x]`
+- Append to `./progress.txt`: `[timestamp] Feature: path - Completed: summary`
+- Respond: `CONTINUE` | `COMPLETE` | `STUCK: reason`
+
+## PRD Structure with Dependency Tracking
 
 ```yaml
 ---
 depends_on:
-  - database-setup
-  - user-schema
-status: blocked  # blocked|ready|in-progress|complete
+  - feature-name      # Array of feature folder names
+status: blocked       # blocked|ready|in-progress|complete
 conversation_prompts:
-  - "Topic to explore when ready to implement"
+  - "Topic for deeper exploration"
 ---
 
 # Feature Name
 
 ## Context
-Why this feature matters
+Why this feature matters (2-4 sentences)
 
 ## Requirements
 - [ ] Specific, testable requirement
@@ -73,71 +74,129 @@ Why this feature matters
 See [docs/standards.md](../standards.md)
 
 ## Notes
-Context for Claude during execution
+Implementation guidance for Claude:
+- Patterns to follow
+- Files to reference
+- Constraints/gotchas
 ```
 
-## Key Scripts
+## Dependency Management
 
-### `init-project.sh` (template users run this)
+**Status Transitions:**
+- `ready` → `in-progress` (kickoff starts)
+- `in-progress` → `complete` (all requirements met)
+- `blocked` → `ready` (when dependencies complete)
 
-- Conducts discovery conversation
-- Generates plan and PRDs
-- Self-deletes after completion
+**Validation in kickoff.sh:**
+1. Parse `depends_on` array from PRD frontmatter
+2. Check each dependency's status = `complete`
+3. Exit with helpful message if blocked
+4. Auto-update blocked → ready when dependencies complete
 
-### `kickoff.sh` (runs feature automation)
+**Hierarchical Structure:**
+```
+feature/database-setup           (no deps, status: ready)
+feature/auth-system              (depends: [database-setup])
+feature/auth-system/oauth        (depends: [../])
+```
 
-- Validates PRD exists and dependencies are complete
-- Updates status: ready → in-progress → complete
-- Runs Ralph Wiggum Loop
-- Suggests newly unblocked features on completion
+## Key Commands
 
-## When Helping Template Users
+**Initialize new project:**
+```bash
+./init-project.sh
+# Runs discovery conversation via plan-prompt.md
+# Generates plan document and feature PRDs
+# Self-deletes after completion
+```
 
-### During Init (`init-project.sh`)
+**Execute feature:**
+```bash
+git checkout -b feature/<name>
+./kickoff.sh
+# Validates dependencies via yq YAML parsing
+# Pipes ralph-loop-prompt.md + context to claude
+# Iterates until COMPLETE or STUCK
+```
 
-Ask discovery questions naturally, one topic at a time:
+**Dependencies:**
+- `yq` for YAML parsing: `brew install yq` (macOS) or download binary (Linux)
+- `claude` CLI installed and authenticated
 
-1. Project essence (what/why)
-2. Target users
-3. Core functionality
-4. Technical foundation
-5. Success criteria
+## Script Behavior
 
-Generate the plan document with:
+**`kickoff.sh` validates:**
+- PRD exists at `docs/features/<feature-path>/prd.md`
+- Status is not `complete` (allow rework by editing PRD)
+- All `depends_on` features have `status: complete`
+- Branch format: `feature/<name>` or `feature/<parent>/<child>`
 
-- Hierarchical feature breakdown based on dependencies
-- "Future Conversations" section with topics to explore later
-- Implementation sequence suggestions
+**Loop context injection:**
+```bash
+# kickoff.sh builds context and pipes to claude
+LOOP_CONTEXT=$(cat << EOF
+## Context for This Iteration
+**Feature Path:** $FEATURE_PATH
+**PRD File:** $PRD
+**Iteration:** $ITERATION
+---
+## PRD Contents
+$(cat "$PRD")
+---
+## Previous Iterations
+$(cat "$PROGRESS")
+EOF
+)
 
-Generate feature PRDs with:
+cat ralph-loop-prompt.md <(echo "$LOOP_CONTEXT") | claude
+```
 
-- Appropriate status (ready if no dependencies, blocked otherwise)
-- Conversation prompts for deeper exploration
-- Well-structured requirements and acceptance criteria
+## File Purposes
 
-### During Feature Development (`kickoff.sh`)
+**Generated during planning:**
+- `docs/plans/YYYY-MM-DD-<project>-initial.md` - Plan with future conversation topics
+- `docs/features/*/prd.md` - Feature PRDs with dependency metadata
+- `docs/standards.md` - Standard acceptance criteria (project-specific)
 
-- Read the PRD to understand requirements
-- Follow the Ralph Wiggum Loop pattern
-- Complete requirements iteratively
-- Mark complete when all acceptance criteria met
+**Generated during execution:**
+- `docs/features/*/progress.md` - Per-feature iteration log (gitignored)
+- `docs/features/*/.active` - Branch lineage history (gitignored)
+- `./progress.txt` - Root-level progress log across all features (gitignored)
 
-## Important Notes
+## Branch Naming Conventions
 
-- **Dependency validation happens in kickoff.sh** - Don't start work if dependencies aren't complete
-- **Status transitions** - Scripts handle ready→in-progress→complete automatically
-- **Conversation prompts** - Each PRD includes topics for follow-up planning conversations
-- **Self-documenting** - Each feature PRD should be standalone with all context needed
+Branches map to feature directories:
+- `feature/auth-refactor` → `docs/features/auth-refactor/`
+- `feature/auth-refactor/oauth` → `docs/features/auth-refactor/oauth/`
 
-## Ralph Wiggum Loop
+Root feature = first segment after `feature/`
+`.active` file lives in root feature directory, tracks all branches
 
-See [docs/architecture/ralph-wiggum-loop.md](docs/architecture/ralph-wiggum-loop.md) for details on how the automated iteration system works.
+## When Helping Users
 
-## This Template Repository
+**During init (plan-prompt.md context):**
+- Ask discovery questions one at a time
+- Generate plan with hierarchical dependencies
+- Create feature directories with PRDs
+- Set appropriate status based on dependencies
+- Include "Future Conversations" in plan
 
-If you're modifying THIS template (not using it for a project), remember:
+**During kickoff (ralph-loop-prompt.md context):**
+- Read PRD carefully (requirements + acceptance criteria)
+- Choose ONE requirement strategically (not necessarily first)
+- Implement fully (code + tests + docs)
+- Update PRD file (check off requirement)
+- Write to `./progress.txt` with timestamp
+- Respond with CONTINUE/COMPLETE/STUCK
 
-- Keep documentation clear for people who will clone this
-- Example content should demonstrate the workflow
-- Scripts should be production-ready and handle edge cases
-- README is the entry point - make it welcoming
+**If modifying this template repository:**
+- Keep prompts editable and version-controlled
+- Scripts must be production-ready
+- Documentation clear for cloners
+- README is entry point
+
+## Documentation References
+
+- [docs/architecture/ralph-wiggum-loop.md](docs/architecture/ralph-wiggum-loop.md) - Original loop design
+- [docs/architecture/writing-prds.md](docs/architecture/writing-prds.md) - PRD best practices
+- [docs/examples/discovery-conversation.md](docs/examples/discovery-conversation.md) - Example workflow
