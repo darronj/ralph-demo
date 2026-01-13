@@ -11,12 +11,14 @@ Template repository for project initialization and automated feature development
 ### Two-Phase Workflow
 
 **Phase 1: Planning** (`init-project.sh` + `plan.md`)
+
 - Conduct discovery interview with user
 - Generate hierarchical plan with feature dependencies
 - Create feature PRDs with YAML frontmatter metadata
 - **DO NOT execute code** - planning only
 
 **Phase 2: Execution** (`kickoff.sh` + `prompt.md`)
+
 - Implement ONE requirement per iteration
 - Update PRD by checking off completed requirements
 - Append summary to root-level `progress.txt`
@@ -32,12 +34,14 @@ Template repository for project initialization and automated feature development
 Both prompts are version-controlled and tunable:
 
 **`plan.md`** - Used by `init-project.sh`
+
 - Discovery interview questions (one at a time)
 - Plan document structure with "Future Conversations" section
 - PRD generation with dependency metadata
 - Sets `status: ready` (no deps) or `status: blocked` (has deps)
 
 **`prompt.md`** - Used by `kickoff.sh`
+
 - Choose ONE incomplete requirement (any order)
 - Fully implement with code, tests, docs
 - Update PRD: `- [ ]` → `- [x]`
@@ -83,11 +87,13 @@ Implementation guidance for Claude:
 ## Dependency Management
 
 **Status Transitions:**
+
 - `ready` → `in-progress` (kickoff starts)
 - `in-progress` → `complete` (all requirements met)
 - `blocked` → `ready` (when dependencies complete)
 
 **Validation in kickoff.sh:**
+
 1. Parse `depends_on` array from PRD frontmatter
 2. Check each dependency's status = `complete`
 3. Exit with helpful message if blocked
@@ -100,6 +106,7 @@ Implementation guidance for Claude:
 3. Claude reports `STUCK: <reason>` (non-error blocking issue)
 
 **Hierarchical Structure:**
+
 ```
 feature/database-setup           (no deps, status: ready)
 feature/auth-system              (depends: [database-setup])
@@ -109,6 +116,7 @@ feature/auth-system/oauth        (depends: [../])
 ## Key Commands
 
 **Initialize new project:**
+
 ```bash
 ./init-project.sh
 # Runs discovery conversation via plan.md
@@ -117,6 +125,7 @@ feature/auth-system/oauth        (depends: [../])
 ```
 
 **Execute feature:**
+
 ```bash
 git checkout -b feature/<name>
 ./kickoff.sh
@@ -126,18 +135,21 @@ git checkout -b feature/<name>
 ```
 
 **Dependencies:**
+
 - `yq` for YAML parsing: `brew install yq` (macOS) or download binary (Linux)
 - `claude` CLI installed and authenticated
 
 ## Script Behavior
 
 **`kickoff.sh` validates:**
+
 - PRD exists at `docs/features/<feature-path>/prd.md`
 - Status is not `complete` (allow rework by editing PRD)
 - All `depends_on` features have `status: complete`
 - Branch format: `feature/<name>` or `feature/<parent>/<child>`
 
 **Loop context injection:**
+
 ```bash
 # kickoff.sh builds context and pipes to claude
 LOOP_CONTEXT=$(cat << EOF
@@ -160,11 +172,13 @@ cat prompt.md <(echo "$LOOP_CONTEXT") | claude
 ## File Purposes
 
 **Generated during planning:**
+
 - `docs/plans/YYYY-MM-DD-<project>-initial.md` - Plan with future conversation topics
 - `docs/features/*/prd.md` - Feature PRDs with dependency metadata
 - `docs/standards.md` - Standard acceptance criteria (project-specific)
 
 **Generated during execution:**
+
 - `docs/features/*/progress.md` - Per-feature iteration log (gitignored)
 - `docs/features/*/.active` - Branch lineage history (gitignored)
 - `./progress.txt` - Root-level progress log with timestamped entries for each completed requirement or error across all features (gitignored)
@@ -172,6 +186,7 @@ cat prompt.md <(echo "$LOOP_CONTEXT") | claude
 ## Branch Naming Conventions
 
 Branches map to feature directories:
+
 - `feature/auth-refactor` → `docs/features/auth-refactor/`
 - `feature/auth-refactor/oauth` → `docs/features/auth-refactor/oauth/`
 
@@ -181,6 +196,7 @@ Root feature = first segment after `feature/`
 ## When Helping Users
 
 **During init (plan.md context):**
+
 - Ask discovery questions one at a time
 - Generate plan with hierarchical dependencies
 - Create feature directories with PRDs
@@ -188,6 +204,7 @@ Root feature = first segment after `feature/`
 - Include "Future Conversations" in plan
 
 **During kickoff (prompt.md context):**
+
 - Read PRD carefully (requirements + acceptance criteria)
 - Choose ONE requirement strategically (not necessarily first)
 - Implement fully (code + tests + docs)
@@ -198,6 +215,7 @@ Root feature = first segment after `feature/`
 - Respond with CONTINUE/COMPLETE/STUCK
 
 **If modifying this template repository:**
+
 - Keep prompts editable and version-controlled
 - Scripts must be production-ready
 - Documentation clear for cloners
@@ -208,3 +226,8 @@ Root feature = first segment after `feature/`
 - [docs/architecture/ralph-wiggum-loop.md](docs/architecture/ralph-wiggum-loop.md) - Original loop design
 - [docs/architecture/writing-prds.md](docs/architecture/writing-prds.md) - PRD best practices
 - [docs/examples/discovery-conversation.md](docs/examples/discovery-conversation.md) - Example workflow
+
+## Plan Mode
+
+- Make the plan extremely concise. Sacrifice grammar for the sake of concision.
+- At the end of each plan, give me a list of unresolved questions to answer, if any.
