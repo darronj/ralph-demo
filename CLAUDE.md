@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Template repository for project initialization and automated feature development with Claude Code. Provides two-phase workflow: planning (generate PRDs) and execution (implement requirements).
 
+**Package Manager:** This project uses `pnpm`. Always use `pnpm` commands instead of `npm`.
+
 ## System Architecture
 
 ### Two-Phase Workflow
