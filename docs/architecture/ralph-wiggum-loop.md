@@ -9,6 +9,7 @@ A simple, human-in-the-loop system for running automated Claude Code loops again
 ### The Loop
 
 Each iteration of the loop:
+
 1. Reads the PRD (Product Requirements Document)
 2. Reads current progress
 3. Asks Claude to complete the next requirement
@@ -18,6 +19,7 @@ Each iteration of the loop:
 ### Human-in-the-Loop Dispatch
 
 There is no automatic orchestrator. You are the scheduler:
+
 - You decide which feature to work on
 - You create the branch
 - You run the kickoff script
@@ -79,6 +81,7 @@ feature/auth-refactor/session-cleanup
 ```
 
 This provides:
+
 - A history of how the feature evolved
 - A way to see what work happened before merging
 - A breadcrumb trail for debugging
@@ -237,7 +240,7 @@ while [[ $ITERATION -lt $MAX_ITERATIONS ]]; do
   ITERATION=$((ITERATION + 1))
   echo "=== Iteration $ITERATION ==="
 
-  RESULT=$(claude -p "
+  RESULT=$(claude  --dangerously-skip-permissions -p "
 You are working on a feature.
 
 PRD: $(cat "$PRD")

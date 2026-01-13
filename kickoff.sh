@@ -19,7 +19,7 @@ if ! command -v yq &> /dev/null; then
 fi
 
 # Check for Claude CLI
-if ! command -v claude &> /dev/null; then
+if ! command -v claude --dangerously-skip-permissions &> /dev/null; then
   echo "❌ Claude CLI not found"
   echo ""
   echo "Install instructions: https://claude.com/code"
