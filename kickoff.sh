@@ -191,7 +191,7 @@ echo "PRD: $PRD"
 echo "Progress: $PROGRESS"
 echo ""
 
-# --- Initialize progress ---
+# --- Initialize progress files ---
 
 if [[ ! -f "$PROGRESS" ]]; then
   cat > "$PROGRESS" << EOF
@@ -203,11 +203,30 @@ Branch: $BRANCH
 EOF
 fi
 
+# Initialize root progress.txt if it doesn't exist
+if [[ ! -f "./progress.txt" ]]; then
+  cat > "./progress.txt" << EOF
+# Ralph Wiggum Loop Progress Log
+
+This file tracks completion of requirements across all features.
+Each line represents one completed requirement from a feature PRD.
+
+Format: [YYYY-MM-DDTHH:MM:SS] Feature: <feature-path> - Completed: <brief requirement summary>
+
+---
+
+EOF
+  echo "Initialized ./progress.txt"
+  echo ""
+fi
+
 # --- The Loop ---
 
 MAX_ITERATIONS=20
 ITERATION=0
 RESULT=""
+LAST_ERROR=""
+CONSECUTIVE_ERRORS=0
 
 while [[ $ITERATION -lt $MAX_ITERATIONS ]]; do
   ITERATION=$((ITERATION + 1))
@@ -248,17 +267,53 @@ EOF
     echo "$RESULT" | tail -10
   } >> "$PROGRESS"
 
+  # Check for completion
   if echo "$RESULT" | grep -q "COMPLETE"; then
     echo ""
     echo "=== Feature complete! ==="
     break
   fi
 
+  # Check for stuck state
   if echo "$RESULT" | grep -q "STUCK"; then
     echo ""
     echo "=== Stuck ==="
     echo "$RESULT"
     break
+  fi
+
+  # Check for errors and track consecutive occurrences
+  if echo "$RESULT" | grep -q "^ERROR:"; then
+    CURRENT_ERROR=$(echo "$RESULT" | grep "^ERROR:" | head -1 | sed 's/^ERROR: //')
+
+    echo ""
+    echo "⚠️  Error detected: $CURRENT_ERROR"
+    echo ""
+
+    if [[ "$CURRENT_ERROR" == "$LAST_ERROR" ]]; then
+      CONSECUTIVE_ERRORS=$((CONSECUTIVE_ERRORS + 1))
+      echo "⚠️  Consecutive error count: $CONSECUTIVE_ERRORS"
+
+      if [[ $CONSECUTIVE_ERRORS -ge 2 ]]; then
+        echo ""
+        echo "=== Auto-stopping: Same error occurred twice ==="
+        echo "Error: $CURRENT_ERROR"
+        echo ""
+        echo "This usually indicates:"
+        echo "  - Missing dependency or configuration"
+        echo "  - Incorrect approach to the problem"
+        echo "  - Need for human intervention"
+        echo ""
+        break
+      fi
+    else
+      CONSECUTIVE_ERRORS=1
+      LAST_ERROR="$CURRENT_ERROR"
+    fi
+  else
+    # Reset error tracking on successful iteration
+    LAST_ERROR=""
+    CONSECUTIVE_ERRORS=0
   fi
 
   sleep 2

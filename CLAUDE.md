@@ -93,6 +93,12 @@ Implementation guidance for Claude:
 3. Exit with helpful message if blocked
 4. Auto-update blocked → ready when dependencies complete
 
+**Auto-stop conditions:**
+
+1. All requirements completed (`COMPLETE` response)
+2. Same error occurs twice consecutively (prevents infinite retry loops)
+3. Claude reports `STUCK: <reason>` (non-error blocking issue)
+
 **Hierarchical Structure:**
 ```
 feature/database-setup           (no deps, status: ready)
@@ -161,7 +167,7 @@ cat prompt.md <(echo "$LOOP_CONTEXT") | claude
 **Generated during execution:**
 - `docs/features/*/progress.md` - Per-feature iteration log (gitignored)
 - `docs/features/*/.active` - Branch lineage history (gitignored)
-- `./progress.txt` - Root-level progress log across all features (gitignored)
+- `./progress.txt` - Root-level progress log with timestamped entries for each completed requirement or error across all features (gitignored)
 
 ## Branch Naming Conventions
 
@@ -186,7 +192,9 @@ Root feature = first segment after `feature/`
 - Choose ONE requirement strategically (not necessarily first)
 - Implement fully (code + tests + docs)
 - Update PRD file (check off requirement)
-- Write to `./progress.txt` with timestamp
+- Write to `./progress.txt` with timestamp and status:
+  - Success: `[timestamp] Feature: path - Completed: summary`
+  - Error: `[timestamp] Feature: path - ERROR: description`
 - Respond with CONTINUE/COMPLETE/STUCK
 
 **If modifying this template repository:**
