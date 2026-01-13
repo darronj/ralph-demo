@@ -2,6 +2,24 @@
 
 A template repository for starting new projects with Claude Code. Includes guided discovery conversation and automated feature development workflow.
 
+## Prerequisites
+
+Before getting started, ensure you have the following installed:
+
+**Required:**
+
+- **Claude CLI** - Get it at [claude.com/code](https://claude.com/code)
+- **yq** - YAML parser for dependency management
+
+```bash
+# macOS
+brew install yq
+
+# Linux
+wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+chmod +x /usr/local/bin/yq
+```
+
 ## Quick Start
 
 1. **Clone this template:**
@@ -157,19 +175,6 @@ git checkout -b feature/auth-system/oauth-provider
 ./kickoff.sh
 # ✓ Creates sub-feature PRD if needed
 # ✓ Validates parent feature complete
-```
-
-## Dependencies
-
-The kickoff script requires `yq` for YAML parsing:
-
-```bash
-# macOS
-brew install yq
-
-# Linux
-wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
-chmod +x /usr/local/bin/yq
 ```
 
 ## Learn More
