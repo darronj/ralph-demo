@@ -213,29 +213,35 @@ while [[ $ITERATION -lt $MAX_ITERATIONS ]]; do
   ITERATION=$((ITERATION + 1))
   echo "=== Iteration $ITERATION ==="
 
-  RESULT=$(claude -p "
-You are working on a feature using the Ralph Wiggum Loop.
+  # Build context for the loop prompt
+  LOOP_CONTEXT=$(cat << EOF
+## Context for This Iteration
 
-PRD:
+**Feature Path:** $FEATURE_PATH
+**PRD File:** $PRD
+**Iteration:** $ITERATION
+
+---
+
+## PRD Contents
+
 $(cat "$PRD")
 
-Current progress:
+---
+
+## Previous Iterations
+
 $(cat "$PROGRESS")
 
-Instructions:
-1. Read the PRD requirements and acceptance criteria
-2. Complete the next incomplete requirement
-3. Update progress
+---
 
-Then respond with one of:
-- CONTINUE (if more work remains)
-- COMPLETE (if all requirements and acceptance criteria are met)
-- STUCK: <reason> (if you cannot proceed)
+EOF
+)
 
-Do not respond with just 'CONTINUE' - actually do the work first.
-" 2>&1) || true
+  # Pipe prompt and context to Claude
+  RESULT=$(cat ralph-loop-prompt.md <(echo "$LOOP_CONTEXT") | claude 2>&1) || true
 
-  # Record iteration in progress
+  # Record iteration in local progress
   {
     echo ""
     echo "--- Iteration $ITERATION: $(date -Iseconds) ---"

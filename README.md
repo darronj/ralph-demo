@@ -109,7 +109,9 @@ docs/
 
 init-project.sh       # Start here for new projects (self-deletes after use)
 kickoff.sh            # Run feature automation with dependency validation
-.gitignore            # Excludes generated files (.active, progress.md)
+ralph-loop-prompt.md  # System prompt for the Ralph Loop (editable)
+.gitignore            # Excludes generated files (.active, progress.md, progress.txt)
+progress.txt          # Root-level progress log (auto-generated)
 ```
 
 ## Writing Effective PRDs
