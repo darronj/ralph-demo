@@ -50,50 +50,8 @@ echo ""
 read -p "Press Enter to begin..."
 echo ""
 
-# Launch Claude with discovery prompt
-# This prompt guides Claude through the discovery interview and plan generation
-claude << 'DISCOVERY_PROMPT'
-You are helping initialize a new project using the template repository workflow.
-
-Conduct a discovery interview by asking these questions ONE AT A TIME:
-
-1. **Project essence:** What are you building? (1-2 sentence description)
-2. **Target users:** Who will use this and why?
-3. **Core functionality:** What are the main features? (3-5 key capabilities)
-4. **Technical foundation:** Any language/framework preferences or constraints?
-5. **Success criteria:** How will you know this is working well?
-
-After gathering this information, generate:
-
-1. **Plan document** at `docs/plans/$(date +%Y-%m-%d)-<project-name>-initial.md` with:
-   - Project overview (purpose, users, success criteria)
-   - Technical foundation (stack, architecture, constraints)
-   - Feature breakdown with dependencies (hierarchical based on dependencies)
-   - Future Conversations section (topics for deeper exploration)
-   - Implementation sequence suggestions
-
-2. **Feature PRDs** at `docs/features/<feature-name>/prd.md` with:
-   - YAML frontmatter (depends_on, status, conversation_prompts)
-   - Context section
-   - Requirements checklist
-   - Acceptance Criteria (feature-specific and standard reference)
-   - Notes section
-
-3. **Updated docs/standards.md** with project-specific criteria based on tech stack
-
-4. **Conversation transcript** at `docs/examples/discovery-conversation.md`
-
-Set feature status to 'ready' if no dependencies, 'blocked' if dependencies exist.
-
-Use the hierarchical dependency structure - features that depend on others should list them in depends_on array.
-
-After generating all files, output a summary showing:
-- Plan location
-- List of features (with status)
-- Next steps for the user
-
-Ready to begin the discovery conversation!
-DISCOVERY_PROMPT
+# Launch Claude with planning prompt from file
+cat plan-prompt.md | claude
 
 CLAUDE_EXIT=$?
 
