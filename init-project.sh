@@ -10,17 +10,6 @@ SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SO
 echo "=== Project Initialization ==="
 echo ""
 
-# Check if already initialized
-if [[ -d "docs/plans" ]] && [[ -n "$(ls -A docs/plans 2>/dev/null)" ]]; then
-  echo "❌ Project already initialized (docs/plans/ contains files)"
-  echo ""
-  echo "To re-initialize:"
-  echo "  rm -rf docs/plans docs/features"
-  echo "  git checkout docs/standards.md docs/examples/"
-  echo ""
-  exit 1
-fi
-
 # Check for Claude CLI
 if ! command -v claude &> /dev/null; then
   echo "❌ Claude CLI not found"
@@ -32,6 +21,42 @@ fi
 
 # Create required directories
 mkdir -p docs/{plans,features,architecture,examples}
+
+# Check for files that might be overwritten
+POTENTIAL_CONFLICTS=()
+
+# Check for existing plan files with today's date
+TODAY=$(date +%Y-%m-%d)
+if compgen -G "docs/plans/${TODAY}-*-initial.md" > /dev/null 2>&1; then
+  POTENTIAL_CONFLICTS+=("docs/plans/${TODAY}-*-initial.md")
+fi
+
+# Check if standards.md exists
+if [[ -f "docs/standards.md" ]]; then
+  POTENTIAL_CONFLICTS+=("docs/standards.md")
+fi
+
+# Check if discovery conversation example exists
+if [[ -f "docs/examples/discovery-conversation.md" ]]; then
+  POTENTIAL_CONFLICTS+=("docs/examples/discovery-conversation.md")
+fi
+
+# Warn if any conflicts found
+if [[ ${#POTENTIAL_CONFLICTS[@]} -gt 0 ]]; then
+  echo "⚠️  WARNING: The following files may be overwritten:"
+  echo ""
+  for file in "${POTENTIAL_CONFLICTS[@]}"; do
+    echo "  • $file"
+  done
+  echo ""
+  read -p "Continue anyway? (y/N) " -n 1 -r
+  echo ""
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Initialization cancelled."
+    exit 0
+  fi
+  echo ""
+fi
 
 echo "Starting discovery conversation with Claude..."
 echo ""
