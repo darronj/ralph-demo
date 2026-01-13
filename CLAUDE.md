@@ -10,13 +10,13 @@ Template repository for project initialization and automated feature development
 
 ### Two-Phase Workflow
 
-**Phase 1: Planning** (`init-project.sh` + `plan-prompt.md`)
+**Phase 1: Planning** (`init-project.sh` + `plan.md`)
 - Conduct discovery interview with user
 - Generate hierarchical plan with feature dependencies
 - Create feature PRDs with YAML frontmatter metadata
 - **DO NOT execute code** - planning only
 
-**Phase 2: Execution** (`kickoff.sh` + `ralph-loop-prompt.md`)
+**Phase 2: Execution** (`kickoff.sh` + `prompt.md`)
 - Implement ONE requirement per iteration
 - Update PRD by checking off completed requirements
 - Append summary to root-level `progress.txt`
@@ -24,20 +24,20 @@ Template repository for project initialization and automated feature development
 
 ### Critical Distinction
 
-- `plan-prompt.md`: Planning mode - creates/edits PRDs, no code execution
-- `ralph-loop-prompt.md`: Execution mode - implements requirements, updates PRDs
+- `plan.md`: Planning mode - creates/edits PRDs, no code execution
+- `prompt.md`: Execution mode - implements requirements, updates PRDs
 
 ## Prompt Files (Editable System Prompts)
 
 Both prompts are version-controlled and tunable:
 
-**`plan-prompt.md`** - Used by `init-project.sh`
+**`plan.md`** - Used by `init-project.sh`
 - Discovery interview questions (one at a time)
 - Plan document structure with "Future Conversations" section
 - PRD generation with dependency metadata
 - Sets `status: ready` (no deps) or `status: blocked` (has deps)
 
-**`ralph-loop-prompt.md`** - Used by `kickoff.sh`
+**`prompt.md`** - Used by `kickoff.sh`
 - Choose ONE incomplete requirement (any order)
 - Fully implement with code, tests, docs
 - Update PRD: `- [ ]` → `- [x]`
@@ -105,7 +105,7 @@ feature/auth-system/oauth        (depends: [../])
 **Initialize new project:**
 ```bash
 ./init-project.sh
-# Runs discovery conversation via plan-prompt.md
+# Runs discovery conversation via plan.md
 # Generates plan document and feature PRDs
 # Self-deletes after completion
 ```
@@ -115,7 +115,7 @@ feature/auth-system/oauth        (depends: [../])
 git checkout -b feature/<name>
 ./kickoff.sh
 # Validates dependencies via yq YAML parsing
-# Pipes ralph-loop-prompt.md + context to claude
+# Pipes prompt.md + context to claude
 # Iterates until COMPLETE or STUCK
 ```
 
@@ -148,7 +148,7 @@ $(cat "$PROGRESS")
 EOF
 )
 
-cat ralph-loop-prompt.md <(echo "$LOOP_CONTEXT") | claude
+cat prompt.md <(echo "$LOOP_CONTEXT") | claude
 ```
 
 ## File Purposes
@@ -174,14 +174,14 @@ Root feature = first segment after `feature/`
 
 ## When Helping Users
 
-**During init (plan-prompt.md context):**
+**During init (plan.md context):**
 - Ask discovery questions one at a time
 - Generate plan with hierarchical dependencies
 - Create feature directories with PRDs
 - Set appropriate status based on dependencies
 - Include "Future Conversations" in plan
 
-**During kickoff (ralph-loop-prompt.md context):**
+**During kickoff (prompt.md context):**
 - Read PRD carefully (requirements + acceptance criteria)
 - Choose ONE requirement strategically (not necessarily first)
 - Implement fully (code + tests + docs)

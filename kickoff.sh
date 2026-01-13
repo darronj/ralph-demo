@@ -239,7 +239,7 @@ EOF
 )
 
   # Pipe prompt and context to Claude
-  RESULT=$(cat ralph-loop-prompt.md <(echo "$LOOP_CONTEXT") | claude 2>&1) || true
+  RESULT=$(cat prompt.md <(echo "$LOOP_CONTEXT") | claude 2>&1) || true
 
   # Record iteration in local progress
   {

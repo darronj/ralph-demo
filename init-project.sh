@@ -51,7 +51,7 @@ read -p "Press Enter to begin..."
 echo ""
 
 # Launch Claude with planning prompt from file
-cat plan-prompt.md | claude
+cat plan.md | claude
 
 CLAUDE_EXIT=$?
 
