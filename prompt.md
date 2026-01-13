@@ -24,6 +24,7 @@ You are working on a feature using the Ralph Wiggum Loop.
 ## After Completing These Steps
 
 Respond with exactly one of:
+
 - `CONTINUE` - if more requirements remain unchecked
 - `COMPLETE` - if ALL requirements and acceptance criteria are now checked off
 - `ERROR: <specific error description>` - if you encountered an error during implementation
@@ -50,3 +51,23 @@ Respond with exactly one of:
   - This prevents infinite retry loops on the same issue
   - Always be specific in your error descriptions so duplicates are properly detected
   - If you encounter an error, try a different approach in the next iteration
+
+## Branch History
+
+The `.active` file in the root feature directory tracks all branches that have worked on this feature:
+
+- Automatically updated by kickoff.sh when you start
+- Provides a history of feature evolution
+- Shows branch lineage for debugging and review
+- This is informational only - you don't need to modify it
+
+## Debug Log
+
+A `debug.log` file is maintained in the feature directory with detailed iteration history:
+
+- Full Claude responses from each iteration
+- Git status before and after each attempt
+- Complete error messages and stack traces
+- Overwritten at the start of each kickoff.sh run (fresh start)
+- Git-ignored and safe to delete anytime
+- Read this file if you need more context about previous attempts or errors

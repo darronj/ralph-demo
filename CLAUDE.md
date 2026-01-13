@@ -204,6 +204,7 @@ cat prompt.md <(echo "$LOOP_CONTEXT") | claude
 **Generated during execution:**
 
 - `docs/features/*/progress.md` - Per-feature iteration log (gitignored)
+- `docs/features/*/debug.log` - Detailed debugging log with full Claude responses, git status, and errors (gitignored, overwritten each run)
 - `docs/features/*/.active` - Branch lineage history (gitignored)
 - `./progress.txt` - Root-level progress log with timestamped entries for each completed requirement or error across all features (gitignored)
 

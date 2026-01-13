@@ -47,6 +47,7 @@ ROOT_DIR="$FEATURES_DIR/$ROOT_FEATURE"
 FEATURE_DIR="$FEATURES_DIR/$FEATURE_PATH"
 PRD="$FEATURE_DIR/prd.md"
 PROGRESS="$FEATURE_DIR/progress.md"
+DEBUG_LOG="$FEATURE_DIR/debug.log"
 ACTIVE="$ROOT_DIR/.active"
 
 # --- Validation ---
@@ -189,6 +190,7 @@ echo "Branch: $BRANCH"
 echo "Feature: $FEATURE_PATH"
 echo "PRD: $PRD"
 echo "Progress: $PROGRESS"
+echo "Debug Log: $DEBUG_LOG"
 echo ""
 
 # --- Initialize progress files ---
@@ -202,6 +204,22 @@ Branch: $BRANCH
 
 EOF
 fi
+
+# Initialize debug log (always overwrite to keep it fresh)
+cat > "$DEBUG_LOG" << EOF
+# Debug Log: $FEATURE_PATH
+
+This file contains detailed iteration logs for debugging.
+It is git-ignored and can be deleted at any time.
+
+Started: $(date -Iseconds)
+Branch: $BRANCH
+Git Status at Start:
+$(git status --short)
+
+---
+
+EOF
 
 # Initialize root progress.txt if it doesn't exist
 if [[ ! -f "./progress.txt" ]]; then
@@ -254,6 +272,17 @@ $(cat "$PROGRESS")
 
 ---
 
+## Debug Log (Full History)
+
+The file \`$DEBUG_LOG\` contains detailed logs of all iterations including:
+- Full Claude responses from each iteration
+- Git status before and after each iteration
+- Complete error messages and stack traces
+
+You can read this file if you need more context about previous attempts.
+
+---
+
 EOF
 )
 
@@ -266,6 +295,23 @@ EOF
     echo "--- Iteration $ITERATION: $(date -Iseconds) ---"
     echo "$RESULT" | tail -10
   } >> "$PROGRESS"
+
+  # Record full details in debug log
+  {
+    echo ""
+    echo "=== Iteration $ITERATION: $(date -Iseconds) ==="
+    echo ""
+    echo "Git status before:"
+    git status --short
+    echo ""
+    echo "Full Claude Response:"
+    echo "$RESULT"
+    echo ""
+    echo "Git status after:"
+    git status --short
+    echo ""
+    echo "---"
+  } >> "$DEBUG_LOG"
 
   # Check for completion
   if echo "$RESULT" | grep -q "COMPLETE"; then

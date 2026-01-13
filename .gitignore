@@ -2,6 +2,7 @@
 .active
 progress.md
 progress.txt
+debug.log
 
 # OS
 .DS_Store

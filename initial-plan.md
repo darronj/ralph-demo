@@ -197,3 +197,12 @@ If the user chooses "No", explain they can remove it later with the same command
 - Write clear, specific requirements (not implementation details)
 - Include both feature-specific and reference to standard acceptance criteria
 - Add helpful notes about patterns, files, or constraints Claude should know
+
+## About .active Files
+
+The kickoff.sh script automatically creates and maintains a `.active` file in each root feature directory (`docs/features/<root-feature>/.active`). This file:
+
+- Tracks all branches that have worked on the feature
+- Provides a history of how the feature evolved
+- Shows branch lineage: root features and their sub-features
+- Is automatically updated - you don't need to create or modify it

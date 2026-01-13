@@ -158,3 +158,12 @@ Before generating PRD:
 - Clear boundary between this and related features
 - Specific requirements (avoid "good" or "appropriate")
 - Notes should reference actual files/patterns
+
+## About .active Files
+
+The kickoff.sh script automatically creates and maintains a `.active` file in the root feature directory. This file:
+
+- Tracks all branches that have worked on this feature and its sub-features
+- Shows the branch lineage (e.g., `feature/auth`, `feature/auth/oauth`, `feature/auth/session`)
+- Provides debugging context when reviewing work before merge
+- Is automatically updated - you don't need to create or modify it
