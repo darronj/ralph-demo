@@ -10,11 +10,18 @@ Template repository for project initialization and automated feature development
 
 ### Two-Phase Workflow
 
-**Phase 1: Planning** (`init-project.sh` + `plan.md`)
+**Phase 1a: Initial Planning** (`init-project.sh` + `initial-plan.md`)
 
 - Conduct discovery interview with user
 - Generate hierarchical plan with feature dependencies
 - Create feature PRDs with YAML frontmatter metadata
+- **DO NOT execute code** - planning only
+
+**Phase 1b: Feature Planning** (`plan.md`)
+
+- Add new features to existing project
+- Reference existing features and patterns
+- Create focused, scoped PRDs
 - **DO NOT execute code** - planning only
 
 **Phase 2: Execution** (`kickoff.sh` + `prompt.md`)
@@ -26,19 +33,27 @@ Template repository for project initialization and automated feature development
 
 ### Critical Distinction
 
-- `plan.md`: Planning mode - creates/edits PRDs, no code execution
+- `initial-plan.md`: Project initialization - full discovery, no existing context
+- `plan.md`: Feature planning - builds on existing project structure
 - `prompt.md`: Execution mode - implements requirements, updates PRDs
 
 ## Prompt Files (Editable System Prompts)
 
-Both prompts are version-controlled and tunable:
+All three prompts are version-controlled and tunable:
 
-**`plan.md`** - Used by `init-project.sh`
+**`initial-plan.md`** - Used by `init-project.sh`
 
 - Discovery interview questions (one at a time)
 - Plan document structure with "Future Conversations" section
 - PRD generation with dependency metadata
 - Sets `status: ready` (no deps) or `status: blocked` (has deps)
+
+**`plan.md`** - Used for feature planning sessions
+
+- Feature-focused discovery questions
+- References existing features/patterns/files
+- Narrower scope than initial planning
+- Integration validation with existing work
 
 **`prompt.md`** - Used by `kickoff.sh`
 
@@ -119,9 +134,18 @@ feature/auth-system/oauth        (depends: [../])
 
 ```bash
 ./init-project.sh
-# Runs discovery conversation via plan.md
+# Runs discovery conversation via initial-plan.md
 # Generates plan document and feature PRDs
 # Self-deletes after completion
+```
+
+**Plan new feature:**
+
+```bash
+./plan.sh
+# Runs feature-focused discovery via plan.md
+# References existing features/patterns
+# Generates feature plan and PRD
 ```
 
 **Execute feature:**
@@ -195,13 +219,21 @@ Root feature = first segment after `feature/`
 
 ## When Helping Users
 
-**During init (plan.md context):**
+**During init (initial-plan.md context):**
 
 - Ask discovery questions one at a time
 - Generate plan with hierarchical dependencies
 - Create feature directories with PRDs
 - Set appropriate status based on dependencies
 - Include "Future Conversations" in plan
+
+**During feature planning (plan.md context):**
+
+- Ask feature-focused questions one at a time
+- Reference existing features and patterns
+- Generate focused feature plan and PRD
+- Validate integration points
+- Keep scope narrow
 
 **During kickoff (prompt.md context):**
 

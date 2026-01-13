@@ -63,6 +63,21 @@ chmod +x /usr/local/bin/yq
    ./kickoff.sh
    ```
 
+## Adding Features Later
+
+After your initial project is set up, add new features with:
+
+```bash
+./plan.sh
+```
+
+This runs a focused planning conversation that:
+
+- References existing features and patterns
+- Validates integration points
+- Creates a feature plan and PRD
+- Keeps scope narrow and focused
+
 ## How It Works
 
 ### Discovery Phase
@@ -126,8 +141,10 @@ docs/
   standards.md        # Standard acceptance criteria for all features
 
 init-project.sh       # Start here for new projects (self-deletes after use)
+plan.sh               # Plan new features for existing projects
 kickoff.sh            # Run feature automation with dependency validation
-plan.md               # System prompt for planning/discovery (editable)
+initial-plan.md       # System prompt for project initialization (editable)
+plan.md               # System prompt for feature planning (editable)
 prompt.md             # System prompt for the Ralph Loop (editable)
 .gitignore            # Excludes generated files (.active, progress.md, progress.txt)
 progress.txt          # Root-level progress log (auto-generated)

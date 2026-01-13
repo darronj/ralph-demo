@@ -1,180 +1,160 @@
-# Project Planning Prompt
+# Feature Planning Prompt
 
-You are helping plan a project using the Ralph Loop template repository.
+You are helping plan new features for an existing project using the Ralph Loop workflow.
 
-This prompt can be used for:
+This prompt is for adding features to a project that already has:
+- Initial plan in `docs/plans/`
+- Existing features in `docs/features/`
+- Standards defined in `docs/standards.md`
 
-- Initial project discovery and planning
-- Adding new features to an existing project
-- Refining or expanding existing plans
+## Your Task: Feature Discovery
 
-## Your Task: Discovery Interview
+Ask these questions **ONE AT A TIME**:
 
-Conduct a discovery interview by asking these questions **ONE AT A TIME**:
+1. **Feature purpose:** What problem does this solve? (1-2 sentences)
+2. **User impact:** Who benefits and how?
+3. **Dependencies:** Does this build on existing features?
+4. **Scope:** What's included vs future work?
+5. **Success:** How will you validate this works?
 
-1. **Project essence:** What are you building? (1-2 sentence description)
-2. **Target users:** Who will use this and why?
-3. **Core functionality:** What are the main features? (3-5 key capabilities)
-4. **Technical foundation:** Any language/framework preferences or constraints?
-5. **Success criteria:** How will you know this is working well?
+Be conversational. After each answer, acknowledge and ask the next question.
 
-Ask each question, wait for the answer, then ask the next. Be conversational and natural.
+## After Gathering Information
 
-## After Gathering All Information
+Generate the following:
 
-Generate the following files:
+### 1. Feature Plan: `docs/plans/YYYY-MM-DD-<feature-name>.md`
 
-### 1. Plan Document: `docs/plans/YYYY-MM-DD-<project-name>-initial.md`
-
-Structure:
 ```markdown
-# Project Plan: <Project Name>
+# Feature Plan: <Feature Name>
 
 **Date:** YYYY-MM-DD
-**Type:** Initial Discovery
+**Type:** Feature Addition
 
-## Project Overview
+## Purpose
+[1-2 sentence problem statement]
 
-### Purpose
-[1-2 sentence description from discovery]
+## User Impact
+[Who benefits, how it changes their workflow]
 
-### Target Users
-[Who will use this and why]
+## Dependencies
+**Builds on:** [List of existing features, or "None - standalone"]
+**Blocks:** [Features waiting on this, or "None identified"]
 
-### Success Criteria
-[Measurable outcomes that indicate success]
+## Scope
 
-## Technical Foundation
+### In Scope
+- Capability 1
+- Capability 2
+- Capability 3
 
-**Stack:** [Language/framework choices]
-**Architecture:** [High-level approach - CLI, web app, API, etc.]
-**Key Constraints:** [Any technical limitations or requirements]
+### Out of Scope (Future Work)
+- Future enhancement 1
+- Future enhancement 2
 
-## Feature Breakdown
+## Success Criteria
+- [ ] Measurable outcome 1
+- [ ] Measurable outcome 2
+- [ ] Measurable outcome 3
 
-### 1. Feature Name
-**Path:** `docs/features/feature-name/`
-**Dependencies:** None (or list of feature names)
-**Purpose:** [Brief description]
-**Key Requirements:**
-- Requirement 1
-- Requirement 2
-- Requirement 3
+## Implementation Notes
+[Constraints, patterns to follow, integration points]
 
-[... repeat for each feature ...]
-
-## Future Conversations
-
-Before implementing these features, consider deeper discussions on:
-
-- **Feature Name:** Topic to explore (e.g., "Schema design patterns, migration strategy")
-- **Feature Name:** Another topic
-
-## Implementation Sequence
-
-Suggested order based on dependencies:
-1. feature-a → feature-b → feature-c
-2. feature-d (can start after feature-a)
+## Conversation Prompts
+Before implementing, explore:
+- **Topic 1:** Questions to answer
+- **Topic 2:** Decisions to make
 ```
 
-### 2. Feature PRDs: `docs/features/<feature-name>/prd.md`
+### 2. Feature PRD: `docs/features/<feature-name>/prd.md`
 
-For each feature, create a directory and PRD with this structure:
-
-```markdown
+```yaml
 ---
 depends_on:
-  - dependency-feature-name
-status: ready  # or blocked if has dependencies
+  - existing-feature  # or []
+status: ready         # or blocked
 conversation_prompts:
-  - "Topic to explore when ready to implement"
-  - "Another topic"
+  - "Deep dive topic"
+  - "Design decision"
 ---
 
 # Feature Name
 
 ## Context
-Brief description of what this feature does and why it matters.
+Why this matters (2-4 sentences with reference to existing system)
 
 ## Requirements
 - [ ] Specific, testable requirement
 - [ ] Another requirement
-- [ ] Final requirement
+- [ ] Integration requirement
 
 ## Acceptance Criteria
 
 ### Feature-Specific
-- [ ] Observable validation that requirement is met
+- [ ] Observable validation
 - [ ] Edge case handling
-- [ ] Integration point verification
+- [ ] Integration verification
 
 ### Standard
 See [docs/standards.md](../standards.md)
 
 ## Notes
-Additional context for Claude during execution:
-- Existing patterns to follow
-- Files to reference
-- Constraints or gotchas
+Implementation guidance:
+- Existing patterns to follow: [file references]
+- Integration points: [feature references]
+- Constraints: [gotchas]
 ```
 
-**Important:**
-- Set `status: ready` if `depends_on: []` (no dependencies)
-- Set `status: blocked` if the feature has dependencies
-- Add 1-3 conversation_prompts for topics to explore later
+**Key differences from initial planning:**
+- Reference existing features in Context
+- Link to patterns/files in Notes
+- Dependencies likely non-empty
+- Narrower scope (feature, not project)
 
-### 3. Update `docs/standards.md`
+### 3. Conversation Transcript: `docs/examples/<feature-name>-planning.md`
 
-Based on the tech stack, add project-specific standards. For example:
+Save this planning conversation showing questions, answers, and what was generated.
 
-- **Python project:** Add PEP 8, type hints, docstrings
-- **JavaScript/TypeScript:** Add ESLint, TypeScript compilation
-- **Web app:** Add browser compatibility, responsive design
-- **API:** Add integration tests, API documentation
+## After Generating Files
 
-### 4. Conversation Transcript: `docs/examples/discovery-conversation.md`
-
-Save a transcript of this discovery conversation showing:
-- Questions you asked
-- User's answers
-- Brief explanation of what was generated
-
-## After Generating All Files
-
-Output a summary showing:
+Output summary:
 ```
-✓ Project plan created: docs/plans/...
-✓ Feature PRDs generated:
-  - docs/features/feature-1/prd.md (ready)
-  - docs/features/feature-2/prd.md (blocked)
-  ...
-✓ Standards defined: docs/standards.md
-✓ Example conversation saved: docs/examples/discovery-conversation.md
+✓ Feature plan: docs/plans/YYYY-MM-DD-<feature>.md
+✓ PRD created: docs/features/<feature>/prd.md (ready|blocked)
+✓ Example saved: docs/examples/<feature>-planning.md
 
 Next steps:
-1. Review the plan and PRDs in docs/
-2. Have follow-up conversations to refine features
-3. When ready:
-   git add .
-   git commit -m "Initial project plan"
-4. Start first feature:
-   git checkout -b feature/<name>
+1. Review plan and PRD
+2. Have follow-up conversations if needed
+3. Commit:
+   git add docs/
+   git commit -m "Plan: <feature-name>"
+4. Start implementation:
+   git checkout -b feature/<feature-name>
    ./kickoff.sh
 ```
 
 ## Critical Requirements
 
-- **DO NOT execute code** - This is planning only, not implementation
-- **Create directories** - Use appropriate directory structure
-- **Use today's date** - For plan document filename
-- **Hierarchical dependencies** - Features that depend on others list them in `depends_on`
-- **Conversation prompts** - Each PRD should have topics for deeper exploration
-- **Complete PRDs** - Include all sections (Context, Requirements, Acceptance Criteria, Notes)
+- **DO NOT execute code** - Planning only
+- **Reference existing work** - Link to features/files/patterns
+- **Check dependencies** - Parse existing PRDs to understand what's available
+- **Use today's date** - For plan filename
+- **Validate integration** - Ensure new feature fits existing architecture
+- **Focused scope** - One feature, not entire system
+
+## Integration Validation
+
+Before generating PRD:
+1. List existing features from `docs/features/*/prd.md`
+2. Check their status (complete? in-progress?)
+3. Identify dependencies (what does this build on?)
+4. Note integration points (what files/patterns to follow?)
 
 ## Tips
 
-- Break features into logical units based on dependencies
-- Consider parallel work opportunities (features with same dependencies)
-- Write clear, specific requirements (not implementation details)
-- Include both feature-specific and reference to standard acceptance criteria
-- Add helpful notes about patterns, files, or constraints Claude should know
+- Smaller features = faster feedback
+- Dependencies should be complete or ready
+- Clear boundary between this and related features
+- Specific requirements (avoid "good" or "appropriate")
+- Notes should reference actual files/patterns
